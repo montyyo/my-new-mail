@@ -201,10 +201,17 @@ public class MailClient
     */
    public void sendMailItemWithTransmissionError(String newTo, String subject, String newMessage)
    {
-     MailItem newmessage;
-     newmessage = new MailItem(user, newTo, subject ,newMessage);
-     server.post(newmessage);
-     totalSend= totalSend +1;
+       //string.replace(char,char); --> 
+      
+       
+       if ( newMessage.contains("a") || newMessage.contains("e")){
+            newMessage.replace( "a" , "#&");
+            newMessage.replace( "e", "$#");
+            MailItem email = new MailItem(user, newTo, subject ,newMessage);
+            server.post(email);
+            totalSend= totalSend +1;
+       }
+          
    }
 }
    
