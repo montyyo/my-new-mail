@@ -17,6 +17,8 @@ public class MailClient
    private int longMail;
    //usuario mensaje mas largo
    private String longMailUser;
+   //last spam
+   private MailItem spamEmail;
    /**
     * constructor con dos parametros
     */
@@ -69,6 +71,7 @@ public class MailClient
            else{
                 if (mail.contains(viagra) || mail.contains(oferta)){
                     System.out.println("spam");
+                    spamEmail = lastEmail;
                     totalSpam = totalSpam + 1;
                 }
            }
@@ -130,6 +133,7 @@ public class MailClient
            else{
                 if (mail.contains(viagra) || mail.contains(oferta)){
                     System.out.println("spam");
+                    spamEmail = lastEmail;
                     totalSpam = totalSpam + 1;
                 }
            }
@@ -175,6 +179,19 @@ public class MailClient
         System.out.println("Porcentaje de spam: 0 % ");
      }
      System.out.println("mensaje más largo:  " + longMail + "caracteres" + " desde:  " +longMailUser );
+   }
+   
+   /**
+    * ultimo spam
+    */
+   public void lastSpam()
+   {
+      if (spamEmail != null){
+          spamEmail.printDatos();
+      }
+      else{
+          System.out.println("no hay spam");
+      }
    }
 }
    
