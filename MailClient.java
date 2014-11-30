@@ -193,5 +193,18 @@ public class MailClient
           System.out.println("no hay spam");
       }
    }
+   
+   /**
+    * metodo de simulacion de errores modifica el 
+    * mensaje de forma que siempre que aparezca una "a" se cambie a "#&" 
+    * y siempre que aparezca una "e" se cambie a "$#".
+    */
+   public void sendMailItemWithTransmissionError(String newTo, String subject, String newMessage)
+   {
+     MailItem newmessage;
+     newmessage = new MailItem(user, newTo, subject ,newMessage);
+     server.post(newmessage);
+     totalSend= totalSend +1;
+   }
 }
    
