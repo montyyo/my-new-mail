@@ -7,6 +7,16 @@ public class MailClient
    private String user;
    //atributo ultimo mensaje
    private MailItem lastEmail;
+   //contador mensajer enviados
+   private int totalMail;
+   //contador spam
+   private int totalSpam;
+   //enviados
+   private int totalSend;
+   //mayor mensaje
+   private int longMail;
+   //usuario mensaje mas largo
+   private String longMailUser;
    /**
     * constructor con dos parametros
     */
@@ -14,7 +24,10 @@ public class MailClient
    {
        this.server = server;
        this.user = user;
-       
+       totalMail = 0;
+       totalSpam = 0;
+       totalSend = 0;
+       longMail = 0;
    }
    
    /**
@@ -39,17 +52,34 @@ public class MailClient
        String oferta = "oferta";
        String viagra = "viagra";
        String proyecto = "proyecto";
+       lastEmail = server.getNextMailItem(user);
+       String mail = lastEmail.getMessage();
+       int largeMessage = mail.length();//nº de caracteres del mensaje
        
-       String spam = lastEmail.getMessage();
        if (lastEmail != null){
-
-                  lastEmail.printDatos();
+           if ( mail.contains(proyecto) || ( !(mail.contains(viagra) || mail.contains(oferta)))){
+                lastEmail.printDatos();
+                totalMail = totalMail + 1;
+                if ( largeMessage > longMail) {
+                    longMail = largeMessage;
+                    String origen = lastEmail.getFrom();
+                    longMailUser = origen;
+                }
            }
-        
+           else{
+                if (mail.contains(viagra) || mail.contains(oferta)){
+                    System.out.println("spam");
+                    totalSpam = totalSpam + 1;
+                }
+           }
+       }
+    
        else
        {
+           
             System.out.println("No hay mensajes nuevos en el buzón");
        }
+       
    }
    
    /**
@@ -61,7 +91,7 @@ public class MailClient
      MailItem newmessage;
      newmessage = new MailItem(user, newTo, subject ,newMessage);
      server.post(newmessage);
-     
+     totalSend= totalSend +1;
    }
    
    /**
@@ -80,16 +110,30 @@ public class MailClient
     */
    public void getNextMailItemAndAutorespond()
    {
+        String oferta = "oferta";
+       String viagra = "viagra";
+       String proyecto = "proyecto";
+       lastEmail = server.getNextMailItem(user);
+       String mail = lastEmail.getMessage();
       //ultimo mensaje  del usuario, peticion de ultimo mensaje(vacia bandeja), por ello usamos la variable local en el if
-      MailItem lastmessage = server.getNextMailItem(user);
-      if (lastmessage != null){
-          String destino = lastmessage.getFrom();//exraemos el destino del ultimo mensaje
-          String subject = "RE:" + lastmessage.getSubject(); //reenvio del asunto
-          String newMessage  = "Estoy de vacaciones" + "\n"+ "Ultimo mensaje enviado:" + "\n" + lastmessage.getMessage();
+      
+      if (lastEmail != null){
+          if ( mail.contains(proyecto) || ( !(mail.contains(viagra) || mail.contains(oferta)))){
+          String destino = lastEmail.getFrom();//exraemos el destino del ultimo mensaje
+          String subject = "RE:" + lastEmail.getSubject(); //reenvio del asunto
+          String newMessage  = "Estoy de vacaciones" + "\n"+ "Ultimo mensaje enviado:" + "\n" + lastEmail.getMessage();
           MailItem autorespond = new MailItem(user, destino,subject,newMessage); //objeto para enviar correo autorrespuesta
           server.post(autorespond); //metodo para enviar mensajes
-      
+          totalMail = totalMail + 1;
           System.out.println("Su mensaje fue enviado.");
+           }
+           else{
+                if (mail.contains(viagra) || mail.contains(oferta)){
+                    System.out.println("spam");
+                    totalSpam = totalSpam + 1;
+                }
+           }
+          
       }
       else{
           System.out.println("No hay mensajes nuevos");
@@ -98,7 +142,7 @@ public class MailClient
       // " vacaciones" + System.lineSeparator() --> salto de linea 
     }
    
-    /**
+   /**
      * metodo para ver ultimo correo por pantalla siempre que queramos
      */
     public void printLastMailItem()
@@ -112,7 +156,25 @@ public class MailClient
       
     }
     
-    
-    
+    /**
+     * metodo para realizar estadisticas
+     */
+   public void mailStadistics()
+   {
+     int howMany = server.howManyMailItems(user);
+     int totalRecived = totalMail + totalSpam;
+     
+     
+     System.out.println("mensajes enviados:  " + totalSend);
+     System.out.println("total mensajes recividos:  " + totalRecived);
+     if (totalSpam != 0){
+     int porSpam = (totalSpam * 100) / totalRecived;
+     System.out.println("Porcentaje de spam:  " + porSpam + "%");
+     }
+     else{
+        System.out.println("Porcentaje de spam: 0 % ");
+     }
+     System.out.println("mensaje más largo:  " + longMail + "caracteres" + " desde:  " +longMailUser );
+   }
 }
    
